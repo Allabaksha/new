@@ -1,0 +1,59 @@
+package com.example.Spring_Mysql;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Order;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.List;
+
+import com.example.Spring_Mysql.Entity.User;
+import com.example.Spring_Mysql.Repository.UserRepository;
+
+@SpringBootTest
+@TestMethodOrder(OrderAnnotation.class)
+public class FirstTestCase {
+
+    @Autowired
+    UserRepository userRepo;
+
+    @Test
+    @Order(value = 1)
+    public void testCreate() {
+        User u = new User();
+        u.setId(3L);
+        u.setFirstname("maruf");
+        u.setLasttname("kankanwadi");
+        userRepo.save(u);
+        assertNotNull(userRepo.findById(3L).get());
+    }
+
+    @Test
+    @Order(value = 2)
+    public void testReadAll() {
+        List<User> list = userRepo.findAll();
+        assertThat(list).size().isGreaterThan(0);
+    }
+
+    @Test
+    @Order(value = 3)
+    public void testUpdate() {
+        User u = userRepo.findById(3L).get();
+        u.setFirstname("kaleem");
+        u.setLasttname("ka");
+        userRepo.save(u);
+        assertEquals("kaleem", userRepo.findById(3L).get().getFirstname());
+    }
+
+    @Test
+    @Order(value = 4)
+    public void testDelete() {
+        userRepo.deleteById(30L);
+        assertThat(userRepo.existsById(30L)).isFalse();
+    }
+}

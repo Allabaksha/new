@@ -1,0 +1,92 @@
+package com.example.Spring_Mongdb.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import com.example.Spring_Mongdb.Entity.Book;
+import com.example.Spring_Mongdb.Entity.Repository.BookRepository;
+
+import java.util.List;
+
+@RestController
+public class BookController {
+    @Autowired
+    private BookRepository repo;
+
+    @GetMapping("/Books")
+    public List<Book> getBooks() {
+        return repo.findAll();
+    }
+    @PostMapping("/Book")
+    public String saveBook(@RequestBody Book book) {
+        repo.save(book);
+        return "Added Successfully";
+    }
+
+
+    @PutMapping("/update/{id}")
+    public String updateBook(@PathVariable int id, @RequestBody Book updatedBook) {
+        return repo.findById(id)
+            .map(existingBook -> {
+                existingBook.setBookName(updatedBook.getBookName());
+                existingBook.setAuthorName(updatedBook.getAuthorName());
+                repo.save(existingBook);
+                return "Updated Successfully";
+            })
+            .orElse("Book not found");
+    }
+    @DeleteMapping("/delete/{id}")
+    public String deleteBook(@PathVariable int id) {
+        repo.deleteById(id);
+        return "Deleted Successfully";
+    }
+    }
+
+package com.example.Spring_Mongdb.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "Test")
+public class Book {
+	@Id 
+	private int id;
+	private String bookName;
+	private String authorName;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getBookName() {
+		return bookName;
+	}
+	public void setBookName(String bookName) {
+		this.bookName = bookName;
+	}
+	public String getAuthorName() {
+		return authorName;
+	}
+	public void setAuthorName(String authorName) {
+		this.authorName = authorName;
+	}
+	
+}
+
+
+package com.example.Spring_Mongdb.Entity.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import com.example.Spring_Mongdb.Entity.Book;
+
+public interface BookRepository extends MongoRepository<Book, Integer> {
+}
+
+
+spring.application.name=Spring_Mongdb
+server.port=8083
+spring.data.mongodb.uri=mongodb://localhost:27017/RI
+
+
